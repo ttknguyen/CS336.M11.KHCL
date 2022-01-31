@@ -32,13 +32,16 @@ function App() {
     const req = {
       x: crop.x,
       y: crop.y,
-      w: crop.width,
-      h: crop.height,
+      x_max: (crop.x + crop.width),
+      y_max: (crop.y + crop.height),
       image: base64Image,
     };
+
+    await console.log(req)
+    
     const response = await requestToServer(req);
-    await setQueryPath(response.data["query-path"]);
-    await setResult(response.data.scores);
+    // await setQueryPath(response.data["query-path"]);
+    await setResult(response.data.results);
     await setLoading(false);
   };
 
@@ -68,7 +71,7 @@ function App() {
               class="form-control"
               type="file"
               id="formFile"
-              accept="image/*"
+              accept=".jpg, .jpeg, .png"
               onChange={handleImage}
             />
           </div>

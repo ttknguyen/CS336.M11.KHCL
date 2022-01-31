@@ -1,12 +1,12 @@
 import axios from "axios";
-const baseUrl = "http://f457-34-86-42-205.ngrok.io";
+const baseUrl = "http://4346-35-233-173-5.ngrok.io";
 
 const requestToServer = async (req) => {
   const params = new URLSearchParams();
   params.append("x", req.x);
   params.append("y", req.y);
-  params.append("w", req.w);
-  params.append("h", req.h);
+  params.append("x_max", req.x_max);
+  params.append("y_max", req.y_max);
   params.append("image", req.image);
   const token = "24Gj4z8JODNMriG0cCB9NfWTRzg_3zzBeRVQnynadewEHQDaG";
   const config = {
