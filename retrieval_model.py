@@ -117,13 +117,13 @@ def main():
 
     # Load Corpus's feature extracted
     print("Enter Feature path:", end = " ")
+    
     path = '/content/CS336.M11.KHCL/data/'  #input()
     fe_method0, fe_method1, fe_method2 = load_features(path, corpus)
 
     print("Enter root:", end = " ")
     root = '/content/CS336.M11.KHCL/' #input()
     model, delf = load_methods(root)
-
 
     key = 1
     while(key != 0):

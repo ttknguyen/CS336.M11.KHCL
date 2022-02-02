@@ -1,4 +1,4 @@
-#import cac thu vien can thiet
+# import necessary libraries
 from cirtorch.networks.imageretrievalnet import init_network
 from cirtorch.networks.imageretrievalnet import extract_vectors
 from cirtorch.networks.imageretrievalnet import extract_ss, extract_ms
