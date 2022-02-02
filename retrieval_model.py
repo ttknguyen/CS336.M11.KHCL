@@ -13,6 +13,7 @@ from Module.resnet_image_retrieval import load_model, feature_extraction_resnet,
 import numpy as np
 import cv2 as cv
 import os, glob2
+import tensorflow as tf
 
 def load_corpus(path):
     print("Loading Corpus ...")
@@ -95,18 +96,21 @@ def method_0(query_path, bbx, feature_corpus, model):
 def method_2(query_path, bbx, feature_corpus, delf, top = 20):
     image = cv.imread(query_path)
     image = image[bbx[1]:bbx[3], bbx[0]:bbx[2]]
-
     loc, des = feature_extraction(image)
     fq = {'locations': loc, 'descriptors': des}
+    #[fq] = np.apply_along_axis(signature_bit,1,[fe],None)    
 
     results = {}
-    for i in feature_corpus:
-      f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
-      match_inliers = match_images(fq, f)
-      results[i] = sum(match_inliers)/len(match_inliers)
-    
+    with tf.device('/device:GPU:0'):
+        with tqdm(total=len(feature_corpus)) as pbar:
+            for i in feature_corpus:
+                f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
+                results[i] = match_images(fq, f)
+                pbar.update(1)
+        
     results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
-    return results[:top]
+    final_results = [i[0] for i in results]
+    return final_results
 
       
 
