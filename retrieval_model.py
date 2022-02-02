@@ -118,7 +118,7 @@ def main():
     # Load Corpus's feature extracted
     print("Enter Feature path:", end = " ")
     path = '/content/CS336.M11.KHCL/data/'  #input()
-    method0, method1, method2 = load_features(path, corpus)
+    fe_method0, fe_method1, fe_method2 = load_features(path, corpus)
 
     print("Enter root:", end = " ")
     root = '/content/CS336.M11.KHCL/' #input()
@@ -138,13 +138,13 @@ def main():
         id_method = input()
 
         if (id_method == '0'):
-          results = method_0(query_path, [x1, y1, x2, y2], method0, model)
+          results = method_0(query_path, [x1, y1, x2, y2], fe_method0, model)
         
         elif (id_method == '1'):
-          results = method_1(query_path, bbx, method1)
+          results = method_1(query_path, bbx, fe_method1)
 
         elif (id_method == '2'):
-          results = method_2(query_path, [x1, y1, x2, y2], method2, delf, 20)
+          results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 20)
 
         #Extract Query
         #feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [(x1, y1, x2, y2)], ms=ms)
