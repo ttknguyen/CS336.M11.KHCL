@@ -39,7 +39,6 @@ def compute_ap(ranks, nres):
 def compute_map(ranks, gnd, kappas=[]):
     """
     Computes the mAP for a given set of returned results.
-
          Usage: 
            map = compute_map (ranks, gnd) 
                  computes mean average precsion (map) only

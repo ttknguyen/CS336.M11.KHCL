@@ -116,16 +116,16 @@ def method_2(query_path, bbx, feature_corpus, delf, top = 20):
 
 def main():
     print("Enter Corpus path:", end = " ")  
-    path_corpus = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/data/test/oxford5k/jpg/' #input()
+    path_corpus = '/content/CS336.M11.KHCL/data/test/oxford5k/jpg/' #input()
     corpus = load_corpus(path_corpus)    
 
     # Load Corpus's feature extracted
     print("Enter Feature path:", end = " ")
-    path = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/data/'  #input()
+    path = '/content/CS336.M11.KHCL/data/'  #input()
     method0, method1, method2 = load_features(path, corpus)
 
-    print("Enter Feature root:", end = " ")
-    root = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/' #input()
+    print("Enter root:", end = " ")
+    root = '/content/CS336.M11.KHCL/' #input()
     model, net_1, transform_1, ms_1, delf = load_methods(root)
 
 
@@ -142,13 +142,13 @@ def main():
         id_method = input()
 
         if (id_method == '0'):
-          results = method_0(query_path, bbx, method0, model)
+          results = method_0(query_path, [x1, y1, x2, y2], method0, model)
         
         elif (id_method == '1'):
           results = method_1(query_path, bbx, method1)
 
         elif (id_method == '2'):
-          results = method_2(query_path, bbx, method2, delf, 20)
+          results = method_2(query_path, [x1, y1, x2, y2], method2, delf, 20)
 
         #Extract Query
         #feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [(x1, y1, x2, y2)], ms=ms)
