@@ -22,7 +22,7 @@ def download_test(data_dir):
         os.mkdir(datasets_dir)
 
     # Download datasets folders test/DATASETNAME/
-    datasets = ['oxford5k', 'paris6k', 'roxford5k', 'rparis6k']
+    datasets = ['oxford5k', 'roxford5k']
     for di in range(len(datasets)):
         dataset = datasets[di]
 

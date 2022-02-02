@@ -57,5 +57,5 @@ def Searching(feature_query, feature_corpus, top = 10):
     for img in feature_corpus:
         cosine_dis[img] = dot(feature_corpus[img].T, feature_query)/(norm(feature_corpus[img].T)*norm(feature_query))
         
-    results = sorted(cosine_dis.items(), key = lambda kv:(kv[1], kv[0]))
-    return results[-top:]
+    results = sorted(cosine_dis.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
+    return results[:top]

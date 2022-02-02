@@ -63,15 +63,11 @@ def load_methods(root):
     #Method 0
     model = load_model('data/networks/')
 
-    #Method 1
-    net, transform, ms = load_network()
-    net.cuda()
-    net.eval()
 
     #Method 2
     delf = hub.load('https://tfhub.dev/google/delf/1').signatures['default']
 
-    return model, net, transform, ms, delf
+    return model, delf
 
 def method_1(query_path, bbx, feature_corpus):
     net, transform, ms = load_network()
@@ -110,24 +106,24 @@ def method_2(query_path, bbx, feature_corpus, delf, top = 20):
         
     results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
     final_results = [i[0] for i in results]
-    return final_results
+    return final_results[:top]
 
       
 
 def main():
     print("Enter Corpus path:", end = " ")  
-    path_corpus = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/data/test/oxford5k/jpg/' #input()
+    path_corpus = '/content/CS336.M11.KHCL/data/test/oxford5k/jpg/' #input()
     corpus = load_corpus(path_corpus)    
 
     # Load Corpus's feature extracted
     print("Enter Feature path:", end = " ")
-    path = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/data/'  #input()
-    method0, method1, method2 = load_features(path, corpus)
+    
+    path = '/content/CS336.M11.KHCL/data/'  #input()
+    fe_method0, fe_method1, fe_method2 = load_features(path, corpus)
 
-    print("Enter Feature root:", end = " ")
-    root = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/' #input()
-    model, net_1, transform_1, ms_1, delf = load_methods(root)
-
+    print("Enter root:", end = " ")
+    root = '/content/CS336.M11.KHCL/' #input()
+    model, delf = load_methods(root)
 
     key = 1
     while(key != 0):
@@ -142,13 +138,13 @@ def main():
         id_method = input()
 
         if (id_method == '0'):
-          results = method_0(query_path, bbx, method0, model)
+          results = method_0(query_path, [x1, y1, x2, y2], fe_method0, model)
         
         elif (id_method == '1'):
-          results = method_1(query_path, bbx, method1)
+          results = method_1(query_path, bbx, fe_method1)
 
         elif (id_method == '2'):
-          results = method_2(query_path, bbx, method2, delf, 20)
+          results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 20)
 
         #Extract Query
         #feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [(x1, y1, x2, y2)], ms=ms)
