@@ -63,15 +63,11 @@ def load_methods(root):
     #Method 0
     model = load_model('data/networks/')
 
-    #Method 1
-    net, transform, ms = load_network()
-    net.cuda()
-    net.eval()
 
     #Method 2
     delf = hub.load('https://tfhub.dev/google/delf/1').signatures['default']
 
-    return model, net, transform, ms, delf
+    return model, delf
 
 def method_1(query_path, bbx, feature_corpus):
     net, transform, ms = load_network()
@@ -110,7 +106,7 @@ def method_2(query_path, bbx, feature_corpus, delf, top = 20):
         
     results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
     final_results = [i[0] for i in results]
-    return final_results
+    return final_results[:top]
 
       
 
@@ -126,7 +122,7 @@ def main():
 
     print("Enter root:", end = " ")
     root = '/content/CS336.M11.KHCL/' #input()
-    model, net_1, transform_1, ms_1, delf = load_methods(root)
+    model, delf = load_methods(root)
 
 
     key = 1

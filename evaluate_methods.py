@@ -27,6 +27,7 @@ from Module.resnet_image_retrieval import load_model, feature_extraction_resnet,
 import numpy as np
 import cv2 as cv
 import os, glob2
+import tensorflow as tf
 
 
 PRETRAINED = {
@@ -60,24 +61,43 @@ parser.add_argument('--multiscale', '-ms', metavar='MULTISCALE', default='[1]',
 parser.add_argument('--gpu-id', '-g', default='0', metavar='N',
                     help="gpu id used for testing (default: '0')")
 
-def method_1(query_path, bbx, feature_corpus):
+def method_1(query_path, bbx, feature_corpus, images):
     net, transform, ms = load_network()
     net.cuda()
     net.eval()
 
     feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [bbx], ms=ms)
     results = Searching(feature_query, feature_corpus, 20)
-    final_results = [i[0] for i in results]
+    final_results = [images.index(i[0]) for i in results]
     
     return final_results
 
-def method_0(query_path, bbx, feature_corpus, model):
+def method_0(query_path, bbx, feature_corpus, model, images):
     image = cv.imread(query_path)
     image = image[bbx[1]:bbx[3], bbx[0]:bbx[2]]
     
     feature_query = feature_extraction_resnet(model, image)
-    results = retrieval_resnet(feature_query, feature_corpus, 20)
-    final_results = [i[0] for i in results]
+    results = retrieval_resnet(feature_query, feature_corpus, len(feature_corpus))
+    final_results = [images.index(i[0]) for i in results]
+    return final_results
+
+def method_2(query_path, bbx, feature_corpus, delf, images):
+    image = cv.imread(query_path)
+    image = image[bbx[1]:bbx[3], bbx[0]:bbx[2]]
+    loc, des = feature_extraction(image)
+    fq = {'locations': loc, 'descriptors': des}
+    #[fq] = np.apply_along_axis(signature_bit,1,[fe],None)    
+
+    results = {}
+    with tf.device('/device:GPU:0'):
+        with tqdm(total=len(feature_corpus)) as pbar:
+            for i in feature_corpus:
+                f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
+                results[i] = match_images(fq, f)
+                pbar.update(1)
+        
+    results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
+    final_results = [images.index(i[0]) for i in results]
     return final_results
 
 def main():
@@ -152,12 +172,36 @@ def main():
             bbxs = [tuple(cfg['gnd'][i]['bbx']) for i in range(cfg['nq'])]
         except:
             bbxs = None  # for holidaysmanrot and copydays
-        
+
+
+        print("____EVALUATING METHOD 0____")
+        path = '/content/CS336.M11.KHCL/data/'
+        model = load_model('/content/CS336.M11.KHCL/data/networks')
+        fe = {}
+        print(">> Loading features:")
+        with tqdm(total=len(images)) as pbar:
+            for img in images:
+                fe[img] = np.load(path + 'feature_extraction_method_0/' + img[:-3] + 'npy')
+                pbar.update(1)
+
+        ranks = []
+        print(">> Evaluating ...")
+        with tqdm(total=len(qimages)) as pbar:
+            for q in range(len(qimages)):
+                score = method_0('/content/CS336.M11.KHCL/data/test/roxford5k/jpg' + qimages[q], bbxs[q], fe, model, images)
+                ranks.append(score)
+                pbar.update(1)
+
+        compute_map_and_print(dataset, ranks, cfg['gnd'])
+        print("_____________________________________\n")
+
+
+        print("____EVALUATING METHOD 1____")
         # extract database and query vectors
         print('>> {}: database images...'.format(dataset))
-        vecs = extract_vectors(net, images[:100], args.image_size, transform, ms=ms)
+        vecs = extract_vectors(net, images, args.image_size, transform, ms=ms)
         print('>> {}: query images...'.format(dataset))
-        qvecs = extract_vectors(net, qimages[:100], args.image_size, transform, bbxs=bbxs, ms=ms)
+        qvecs = extract_vectors(net, qimages, args.image_size, transform, bbxs=bbxs, ms=ms)
         
         print('>> {}: Evaluating...'.format(dataset))
         print(vecs.shape, qvecs.shape)
@@ -170,9 +214,31 @@ def main():
         ranks = np.argsort(-scores, axis=0)
         print(ranks.shape)
         compute_map_and_print(dataset, ranks, cfg['gnd'])
+        print("_____________________________________\n")
         
-        print('>> {}: elapsed time: {}'.format(dataset, htime(time.time()-start)))
+        print("____EVALUATING METHOD 2____")
 
+        fe_2 = {}
+        print(">> Loading features:")
+        with tqdm(total=len(images)) as pbar:
+            for img in images:
+                loc = np.load(path + 'feature_extraction_method_2/' +img[:-4] + '_loc.npy')
+                des = np.load(path + 'feature_extraction_method_2/' +img[:-4] + '_des.npy')
+                fe_2[img] = [loc, des]
+                pbar.update(1)
+        ranks = []
+        delf = hub.load('https://tfhub.dev/google/delf/1').signatures['default']
+        print(">> Evaluating ...")
+        with tqdm(total=len(qimages)) as pbar:
+            for q in range(len(qimages)):
+                score = method_2('/content/CS336.M11.KHCL/data/test/roxford5k/jpg' + qimages[q], bbxs[q], fe, delf, images)
+                ranks.append(score)
+                pbar.update(1)
+
+        compute_map_and_print(dataset, ranks, cfg['gnd'])
+        print("_____________________________________\n")
+
+        print('>> {}: elapsed time: {}'.format(dataset, htime(time.time()-start)))
 
 if __name__ == '__main__':
     main()
