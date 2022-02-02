@@ -43,7 +43,8 @@ def index():
         # file = request.files['query_img']
         query_file = request.form
         base64Img = query_file['image']
-        bbx = (query_file['x'], query_file['y'], query_file['x_max'], query_file['y_max'])
+        x, y = query_file['x'], query_file['y']
+        x_max, y_max = query_file['x_max'], query_file['y_max']
         
         # Save query image
         img = decode_img(base64Img)
@@ -51,8 +52,11 @@ def index():
         img.save(query_path)
 
         # Run search
+        if x == 0 and y == 0 and x_max == 0 and y_max == 0: x_max, y_max = img.size
+        bbx = (x, y, x_max, y_max)
+
         results = method_0(query_path, bbx, method0, model)
-    
+        results = [encode_img(str(path_corpus + i)) for i in results]
         response = {'results': results}
         
         return json.dumps(response)
@@ -62,7 +66,7 @@ def index():
 
 
 if __name__=="__main__":
-    CORS(app)
-    run_with_ngrok(app)
-    print('ngrok')
+    # CORS(app)
+    # run_with_ngrok(app)
+    # print('ngrok')
     app.run()

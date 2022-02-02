@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "http://4346-35-233-173-5.ngrok.io";
+const baseUrl = "http://d3d0-35-194-176-182.ngrok.io";
 
 const requestToServer = async (req) => {
   const params = new URLSearchParams();
@@ -13,7 +13,7 @@ const requestToServer = async (req) => {
     headers: { Authorization: `Bearer ${token}` },
   };
 
-  const response = await axios.post(baseUrl, params, config);
+  const response = await axios.post(baseUrl, params);
 
   return response;
 };

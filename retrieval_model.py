@@ -13,6 +13,7 @@ from Module.resnet_image_retrieval import load_model, feature_extraction_resnet,
 import numpy as np
 import cv2 as cv
 import os, glob2
+import tensorflow as tf
 
 def load_corpus(path):
     print("Loading Corpus ...")
@@ -72,11 +73,16 @@ def load_methods(root):
 
     return model, net, transform, ms, delf
 
-def method_1(query_path, bbx, feature_corpus, net, transform, ms):
+def method_1(query_path, bbx, feature_corpus):
+    net, transform, ms = load_network()
+    net.cuda()
+    net.eval()
+
     feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [bbx], ms=ms)
     results = Searching(feature_query, feature_corpus, 20)
-
-    return results.reverse()
+    final_results = [i[0] for i in results]
+    
+    return final_results
 
 def method_0(query_path, bbx, feature_corpus, model):
     image = cv.imread(query_path)
@@ -84,38 +90,44 @@ def method_0(query_path, bbx, feature_corpus, model):
     
     feature_query = feature_extraction_resnet(model, image)
     results = retrieval_resnet(feature_query, feature_corpus, 20)
-    
-    return results
+    final_results = [i[0] for i in results]
+    return final_results
 
 def method_2(query_path, bbx, feature_corpus, delf, top = 20):
     image = cv.imread(query_path)
     image = image[bbx[1]:bbx[3], bbx[0]:bbx[2]]
     loc, des = feature_extraction(image)
     fq = {'locations': loc, 'descriptors': des}
+    #[fq] = np.apply_along_axis(signature_bit,1,[fe],None)    
+
     results = {}
-    for i in feature_corpus:
-      f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
-      match_inliers = match_images(fq, f)
-      results[i] = [sum(match_inliers) / 100]
-    
-    results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]))
-    return results[-top:].reverse()
+    with tf.device('/device:GPU:0'):
+        with tqdm(total=len(feature_corpus)) as pbar:
+            for i in feature_corpus:
+                f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
+                results[i] = match_images(fq, f)
+                pbar.update(1)
+        
+    results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
+    final_results = [i[0] for i in results]
+    return final_results
 
       
 
 def main():
-    net, transform, ms = load_network()
-    net.cuda()
-    net.eval()
-
     print("Enter Corpus path:", end = " ")  
-    path_corpus = input()
+    path_corpus = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/data/test/oxford5k/jpg/' #input()
     corpus = load_corpus(path_corpus)    
 
     # Load Corpus's feature extracted
     print("Enter Feature path:", end = " ")
-    path = input()
-    _, feature_corpus, x = load_features(path, corpus)
+    path = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/data/'  #input()
+    method0, method1, method2 = load_features(path, corpus)
+
+    print("Enter Feature root:", end = " ")
+    root = '/content/gdrive/MyDrive/University/CS336.M11.KHCL/Models/ImageSearchEngine/' #input()
+    model, net_1, transform_1, ms_1, delf = load_methods(root)
+
 
     key = 1
     while(key != 0):
@@ -124,10 +136,23 @@ def main():
 
         print("Enter bbx of intance:", end = " ")
         x1, y1, x2, y2 = [int(i) for i in input().split(',')]
+        bbx = (x1, y1, x2, y2)
+
+        print("Choose methods (0-2):")
+        id_method = input()
+
+        if (id_method == '0'):
+          results = method_0(query_path, bbx, method0, model)
+        
+        elif (id_method == '1'):
+          results = method_1(query_path, bbx, method1)
+
+        elif (id_method == '2'):
+          results = method_2(query_path, bbx, method2, delf, 20)
 
         #Extract Query
-        feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [(x1, y1, x2, y2)], ms=ms)
-        results = Searching(feature_query, feature_corpus, top = 10)
+        #feature_query = extract_vectors(net, [query_path], 1024, transform, bbxs= [(x1, y1, x2, y2)], ms=ms)
+        #results = Searching(feature_query, feature_corpus, top = 10)
         print("Results top 10:")
         print(results)
         print("...............................................")
