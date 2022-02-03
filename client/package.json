@@ -24,7 +24,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "front-end": "lt --port 3000",
+    "front-end": "lt --port 3000 --subdomain ise-cs336m11khcl2019",
     "back-end": "lt --port 5000 --subdomain ise-backend-jd981",
     "app": "concurrently \"npm run start\" \"npm run front-end\" \"cd .. && python app.py\" \"npm run back-end\""
   },
