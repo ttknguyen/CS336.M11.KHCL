@@ -10,20 +10,11 @@ from pathlib import Path
 from flask_cors import CORS, cross_origin
 from flask_ngrok import run_with_ngrok
 from retrieval_model import load_features, load_corpus, method_0, method_1, method_2, load_methods
+from argparse import ArgumentParser 
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
-
-# Read image features
-root = '/content/CS336.M11.KHCL/'
-path_data = '/content/CS336.M11.KHCL/data/'
-path_corpus = '/content/CS336.M11.KHCL/data/test/oxford5k/jpg/'
-
-corpus = load_corpus(path_corpus)
-fe_method0, fe_method1, fe_method2 = load_features(path_data, corpus)
-model, delf = load_methods(root)
-
 
 def decode_img(msg):
     msg = msg[msg.find(',') + 1:]
@@ -65,7 +56,7 @@ def index():
     elif methodRequest == '1':
         results = method_1(query_path, [x1, y1, x2, y2], fe_method1)
     elif methodRequest == '2':
-        results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 30)
+        results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 20)
     results = [encode_img(str(path_corpus + i)) for i in results]
     response = {'results': results}
     
@@ -73,5 +64,23 @@ def index():
   elif request.method == 'GET': return "200"
 
 if __name__=="__main__":
-    run_with_ngrok(app)
+    parser = ArgumentParser(description='Server')
+    parser.add_argument('-ng','--ngrok',default=0,  
+                        metavar='NGROK', help='Expose local web server to the internet with ngrok')
+    parser.add_argument('-r','--root',default='/content/CS336.M11.KHCL/',  
+                        metavar='ROOT', help='Path to your root folder of project')
+    parser.add_argument('-pd','--path-data',default='/content/CS336.M11.KHCL/data/', 
+                        metavar='PATHDATA', help='Path to your dataset')
+    parser.add_argument('-pc','--path_corpus',default='/content/CS336.M11.KHCL/data/test/oxford5k/jpg/', 
+                        metavar='PATHCORPUS', help='Path to your images database, use for return image')
+
+    args = parser.parse_args()  
+
+    corpus = load_corpus(args.path_corpus)
+    fe_method0, fe_method1, fe_method2 = load_features(args.path_data, corpus)
+    model, delf = load_methods(args.root)
+
+    if str(args.ngrok) == '1':
+        run_with_ngrok(app)
+        print('ngrok')
     app.run()
