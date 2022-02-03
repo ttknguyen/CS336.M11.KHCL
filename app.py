@@ -20,7 +20,7 @@ path_data = '/content/CS336.M11.KHCL/data/'
 path_corpus = '/content/CS336.M11.KHCL/data/test/oxford5k/jpg/'
 
 corpus = load_corpus(path_corpus)
-fe_method0, fe_method1, fe_method2 = load_features(path_data, path_corpus)
+fe_method0, fe_method1, fe_method2 = load_features(path_data, corpus)
 model, delf = load_methods(root)
 
 
