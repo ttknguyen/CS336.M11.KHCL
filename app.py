@@ -8,6 +8,7 @@ from datetime import datetime
 from flask import Flask, request
 from pathlib import Path
 from flask_cors import CORS, cross_origin
+from flask_ngrok import run_with_ngrok
 from retrieval_model import load_features, load_corpus, method_0, method_1, method_2, load_methods
 
 app = Flask(__name__)
@@ -37,9 +38,11 @@ def encode_img(pathImg):
     base64str = base64str[2:-1]
     return base64str
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET', 'POST'])
 @cross_origin(origin='*')
 def index():
+
+  if request.method == 'POST':
     # Upload image
     query_file = request.form
     base64Img = query_file['image']
@@ -67,7 +70,8 @@ def index():
     response = {'results': results}
     
     return json.dumps(response)
-
+  elif request.method == 'GET': return "200"
 
 if __name__=="__main__":
+    run_with_ngrok(app)
     app.run()
