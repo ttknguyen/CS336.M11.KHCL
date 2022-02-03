@@ -10,8 +10,9 @@ const requestToServer = async (req) => {
   params.append("image", req.image);
   params.append("method", req.method);
 
-  const response = await axios.post(baseUrl, params);
+  const timeoutRequest = {timeout: 600000}
 
+  const response = await axios.post(baseUrl, params, timeoutRequest);
   return response;
 };
 
