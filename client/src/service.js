@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "https://img-search-engine-backend.loca.lt/";
+const baseUrl = "https://ise-backend-jd981.loca.lt/";
 
 const requestToServer = async (req) => {
   const params = new URLSearchParams();
