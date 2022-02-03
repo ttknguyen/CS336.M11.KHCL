@@ -55,12 +55,11 @@ def index():
 
     # Run search
     if x1 == 0 and y1 == 0 and x2 == 0 and y2 == 0: x2, y2 = img.size
-    bbx = (x1, y1, x2, y2)
 
     if methodRequest == 0:
-        results = method_0(query_path, bbx, fe_method0, model)
+        results = method_0(query_path, (x1, y1, x2, y2), fe_method0, model)
     elif methodRequest == 1:
-        results = method_1(query_path, bbx, fe_method1)
+        results = method_1(query_path, (x1, y1, x2, y2), fe_method1)
     else:
         results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 30)
 
