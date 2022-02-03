@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "http://d3d0-35-194-176-182.ngrok.io";
+const baseUrl = "https://img-search-engine-backend.loca.lt/";
 
 const requestToServer = async (req) => {
   const params = new URLSearchParams();
