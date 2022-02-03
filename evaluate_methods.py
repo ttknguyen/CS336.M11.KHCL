@@ -74,7 +74,7 @@ def method_1(query_path, bbx, feature_corpus, images):
 
 def method_0(query_path, bbx, feature_corpus, model, images):
     image = cv.imread(query_path)
-    image = image[bbx[1]:bbx[3], bbx[0]:bbx[2]]
+    image = image[int(bbx[1]):int(bbx[3]), int(bbx[0]):int(bbx[2])]
     
     feature_query = feature_extraction_resnet(model, image)
     results = retrieval_resnet(feature_query, feature_corpus, len(feature_corpus))
@@ -83,18 +83,18 @@ def method_0(query_path, bbx, feature_corpus, model, images):
 
 def method_2(query_path, bbx, feature_corpus, delf, images):
     image = cv.imread(query_path)
-    image = image[bbx[1]:bbx[3], bbx[0]:bbx[2]]
+    image = image[int(bbx[1]):int(bbx[3]), int(bbx[0]):int(bbx[2])]
     loc, des = feature_extraction(image)
     fq = {'locations': loc, 'descriptors': des}
     #[fq] = np.apply_along_axis(signature_bit,1,[fe],None)    
 
     results = {}
     with tf.device('/device:GPU:0'):
-        with tqdm(total=len(feature_corpus)) as pbar:
-            for i in feature_corpus:
-                f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
-                results[i] = match_images(fq, f)
-                pbar.update(1)
+        for i in feature_corpus:
+            f = {'locations': feature_corpus[i][0], 'descriptors': feature_corpus[i][1]}
+
+            results[i] = match_images(fq, f)
+
         
     results = sorted(results.items(), key = lambda kv:(kv[1], kv[0]), reverse=True)
     final_results = [images.index(i[0]) for i in results]
@@ -160,8 +160,10 @@ def main():
     # evaluate on test datasets
     datasets = args.datasets.split(',')
     for dataset in datasets: 
-        start = time.time()
-
+        if (dataset == 'oxford5k'):
+          tmp = 47
+        else:
+          tmp = 48
         print('>> {}: Extracting...'.format(dataset))
 
         # prepare config structure for the test dataset
@@ -176,23 +178,22 @@ def main():
 
         print("____EVALUATING METHOD 0____")
         path = '/content/CS336.M11.KHCL/data/'
-        model = load_model('/content/CS336.M11.KHCL/data/networks')
+        model = load_model('/content/CS336.M11.KHCL/data/networks/')
         fe = {}
         print(">> Loading features:")
         with tqdm(total=len(images)) as pbar:
             for img in images:
-                fe[img] = np.load(path + 'feature_extraction_method_0/' + img[:-3] + 'npy')
+                fe[img] = np.load(path + 'feature_extraction_method_0/' + img[tmp:-3] + 'npy')
                 pbar.update(1)
 
-        ranks = []
+        ranks_0 = []
         print(">> Evaluating ...")
         with tqdm(total=len(qimages)) as pbar:
             for q in range(len(qimages)):
-                score = method_0('/content/CS336.M11.KHCL/data/test/roxford5k/jpg' + qimages[q], bbxs[q], fe, model, images)
-                ranks.append(score)
+                score = method_0(qimages[q], bbxs[q], fe, model, images)
+                ranks_0.append(score)
                 pbar.update(1)
-
-        compute_map_and_print(dataset, ranks, cfg['gnd'])
+        ranks_0 = np.array(ranks_0)
         print("_____________________________________\n")
 
 
@@ -211,9 +212,7 @@ def main():
         
         # search, rank, and print
         scores = np.dot(vecs.T, qvecs)
-        ranks = np.argsort(-scores, axis=0)
-        print(ranks.shape)
-        compute_map_and_print(dataset, ranks, cfg['gnd'])
+        ranks_1 = np.argsort(-scores, axis=0)
         print("_____________________________________\n")
         
         print("____EVALUATING METHOD 2____")
@@ -222,23 +221,28 @@ def main():
         print(">> Loading features:")
         with tqdm(total=len(images)) as pbar:
             for img in images:
-                loc = np.load(path + 'feature_extraction_method_2/' +img[:-4] + '_loc.npy')
-                des = np.load(path + 'feature_extraction_method_2/' +img[:-4] + '_des.npy')
+                loc = np.load(path + 'feature_extraction_method_2/' + img[tmp:-4] + '_loc.npy')
+                des = np.load(path + 'feature_extraction_method_2/' + img[tmp:-4] + '_des.npy')
                 fe_2[img] = [loc, des]
                 pbar.update(1)
-        ranks = []
+        ranks_2 = []
         delf = hub.load('https://tfhub.dev/google/delf/1').signatures['default']
         print(">> Evaluating ...")
         with tqdm(total=len(qimages)) as pbar:
             for q in range(len(qimages)):
-                score = method_2('/content/CS336.M11.KHCL/data/test/roxford5k/jpg' + qimages[q], bbxs[q], fe, delf, images)
-                ranks.append(score)
+                score = method_2(qimages[q], bbxs[q], fe_2, delf, images)
+                ranks_2.append(score)
                 pbar.update(1)
-
-        compute_map_and_print(dataset, ranks, cfg['gnd'])
+        ranks_2 = np.array(ranks_2)
         print("_____________________________________\n")
 
-        print('>> {}: elapsed time: {}'.format(dataset, htime(time.time()-start)))
+        print("\n\nResult Evaluate Method 0:")
+        compute_map_and_print(dataset, ranks_0.T, cfg['gnd'])
+        # print("Result Evaluate Method 1:")
+        # compute_map_and_print(dataset, ranks_1.T, cfg['gnd'])
+        print("Result Evaluate Method 2:")
+        compute_map_and_print(dataset, ranks_2.T, cfg['gnd'])
+        #print('>> {}: elapsed time: {}'.format(dataset, htime(time.time()-start)))
 
 if __name__ == '__main__':
     main()
