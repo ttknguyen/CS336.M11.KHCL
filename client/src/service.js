@@ -8,10 +8,7 @@ const requestToServer = async (req) => {
   params.append("x_max", req.x_max);
   params.append("y_max", req.y_max);
   params.append("image", req.image);
-  const token = "24Gj4z8JODNMriG0cCB9NfWTRzg_3zzBeRVQnynadewEHQDaG";
-  const config = {
-    headers: { Authorization: `Bearer ${token}` },
-  };
+  params.append("method", req.method);
 
   const response = await axios.post(baseUrl, params);
 

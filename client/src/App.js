@@ -14,13 +14,30 @@ function App() {
   const [queryPath, setQueryPath] = useState("");
   const [result, setResult] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [method, setMethod] = useState("");
 
   const handleImage = async (event) => {
+    if (event.target.files[0].type.match("image/*") === null) {
+      return setError("Image file is required");
+    } else {
+      setError("");
+    }
     setSrcImg(URL.createObjectURL(event.target.files[0]));
   };
 
+  const handleMethod = async (event) => {
+    const id = event.target.id;
+    return setMethod(id.charAt(id.length - 1) - 1);
+  };
+
   const handleSubmit = async () => {
-    if (!image) return;
+    if (method === "") return setError("Please choose a method");
+    else setError("");
+
+    if (!image) return setError("Please upload a file");
+    else setError("");
+
     await setLoading(true);
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
@@ -32,13 +49,14 @@ function App() {
     const req = {
       x: crop.x,
       y: crop.y,
-      x_max: (crop.x + crop.width),
-      y_max: (crop.y + crop.height),
+      x_max: crop.x + crop.width,
+      y_max: crop.y + crop.height,
       image: base64Image,
+      method,
     };
 
-    await console.log(req)
-    
+    await console.log(req);
+
     const response = await requestToServer(req);
     // await setQueryPath(response.data["query-path"]);
     await setResult(response.data.results);
@@ -65,6 +83,11 @@ function App() {
           <Form.Label className="d-flex justify-content-center">
             Select Image you want to retrieve
           </Form.Label>
+          {error && (
+            <Form.Label className="d-flex justify-content-center text-danger">
+              {error}
+            </Form.Label>
+          )}
 
           <div className="mb-3 d-flex justify-content-center">
             <input
@@ -88,6 +111,46 @@ function App() {
                 />
               </div>
             )}
+          </div>
+          <div
+            class="btn-group"
+            role="group"
+            aria-label="Basic radio toggle button group"
+            className="d-flex justify-content-center mt-3"
+            onChange={handleMethod}
+          >
+            <input
+              type="radio"
+              class="btn-check"
+              name="btnradio"
+              id="btnradio1"
+              autocomplete="off"
+            />
+            <label class="btn btn-outline-primary" for="btnradio1">
+              1
+            </label>
+
+            <input
+              type="radio"
+              class="btn-check"
+              name="btnradio"
+              id="btnradio2"
+              autocomplete="off"
+            />
+            <label class="btn btn-outline-primary" for="btnradio2">
+              2
+            </label>
+
+            <input
+              type="radio"
+              class="btn-check"
+              name="btnradio"
+              id="btnradio3"
+              autocomplete="off"
+            />
+            <label class="btn btn-outline-primary" for="btnradio3">
+              3
+            </label>
           </div>
         </Form.Group>
         <div class="d-flex justify-content-center">
