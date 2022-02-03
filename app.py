@@ -38,7 +38,7 @@ def encode_img(pathImg):
     return base64str
 
 @app.route('/', methods=['POST'])
-@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+@cross_origin(origin='*')
 def index():
     # Upload image
     query_file = request.form
@@ -49,20 +49,21 @@ def index():
     
     # Save query image
     img = decode_img(base64Img)
+    img = img.resize((256, 256))
     if not os.path.exists("data/uploaded/"): os.makedirs("data/uploaded/")
     query_path = "data/uploaded/" + datetime.now().isoformat().replace(":", ".") + "_" + "query_img.png"
     img.save(query_path)
 
     # Run search
     if x1 == 0 and y1 == 0 and x2 == 0 and y2 == 0: x2, y2 = img.size
-
+    bbx = (x1, y1, x2, y2)
     if methodRequest == 0:
         results = method_0(query_path, [x1, y1, x2, y2], fe_method0, model)
     elif methodRequest == 1:
         results = method_1(query_path, [x1, y1, x2, y2], fe_method1)
-    else:
+    elif methodRequest == 2:
         results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 30)
-
+    else: print("method id:", methodRequest)
     results = [encode_img(str(path_corpus + i)) for i in results]
     response = {'results': results}
     
