@@ -29,7 +29,7 @@
 Link video demo: https://youtu.be/HQFgYrPgjX4\
 Check if GPU is available on Google Colab or not for running our API
 ```sh
-!nvidia-smi -L
+nvidia-smi -L
 ```
 <details>
   <summary><b>Git clone</b></summary><br/>
@@ -37,8 +37,8 @@ Check if GPU is available on Google Colab or not for running our API
 Clone API source code from our github repository.
 
   ```
-!git clone https://github.com/ttknguyen/CS336.M11.KHCL.git
-%cd ./CS336.M11.KHCL/
+git clone https://github.com/ttknguyen/CS336.M11.KHCL.git
+cd ./CS336.M11.KHCL/
   ```
 
 </details>
