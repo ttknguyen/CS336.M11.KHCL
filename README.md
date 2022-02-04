@@ -26,7 +26,7 @@
 | 4 | Nguyen Khanh Nhu | 19520209 | *19520209@gm.uit.edu.vn* | [nkn-nhu](https://github.com/nkn-nhu) |
 
 ## Usage (for colab only)
-Link video demo: https://youtu.be/HQFgYrPgjX4\
+Link video demo: https://youtu.be/HQFgYrPgjX4\ \
 Check if GPU is available on Google Colab or not for running our API
 ```sh
 nvidia-smi -L
