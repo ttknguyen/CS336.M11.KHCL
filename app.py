@@ -68,7 +68,7 @@ if __name__=="__main__":
                         metavar='NGROK', help='Expose local web server to the internet with ngrok')
     parser.add_argument('-r','--root',default='/content/CS336.M11.KHCL/',  
                         metavar='ROOT', help='Path to your root folder of project')
-    parser.add_argument('-pd','--path-data',default='/content/CS336.M11.KHCL/data/', 
+    parser.add_argument('-pd','--path_data',default='/content/CS336.M11.KHCL/data/', 
                         metavar='PATHDATA', help='Path to your dataset')
     parser.add_argument('-pc','--path_corpus',default='/content/CS336.M11.KHCL/data/test/oxford5k/jpg/', 
                         metavar='PATHCORPUS', help='Path to your images database, use for return image')
