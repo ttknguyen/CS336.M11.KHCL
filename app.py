@@ -57,7 +57,7 @@ def index():
         results = method_1(query_path, [x1, y1, x2, y2], fe_method1)
     elif methodRequest == '2':
         results = method_2(query_path, [x1, y1, x2, y2], fe_method2, delf, 20)
-    results = [encode_img(str(path_corpus + i)) for i in results]
+    results = [encode_img(str(args.path_corpus + i)) for i in results]
     response = {'results': results}
     
     return json.dumps(response)

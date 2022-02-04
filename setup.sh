@@ -4,7 +4,6 @@ unzip dataset.zip
 rm dataset.zip
 
 # install librabries
-pip install -q torch==1.0.0 torchvision
 pip install flask-cors
 pip install flask-ngrok
 
