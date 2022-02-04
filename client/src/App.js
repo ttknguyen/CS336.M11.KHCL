@@ -126,7 +126,7 @@ function App() {
             {srcImg && (
               <div id="inputImg" className="d-flex justify-content-center">
                 <ReactCrop
-                  style={{ maxWidth: "100%" }}
+                  style={{ maxWidth: "20%" }}
                   src={srcImg}
                   onImageLoaded={setImage}
                   crop={crop}
@@ -153,7 +153,7 @@ function App() {
               autocomplete="off"
             />
             <label class="btn btn-outline-primary" for="btnradio1" 
-                  style={{padding: '1.1em 4em',
+                  style={{padding: '0.5em 3em',
                           borderRadius: '10px',
                         }}>
               <b>SIR</b>
@@ -167,7 +167,7 @@ function App() {
               autocomplete="off"
             />
             <label class="btn btn-outline-primary" for="btnradio2"
-                  style={{padding: '1.1em 2em',
+                  style={{padding: '0.5em 1.5em',
                           borderRadius: '10px',
                         }}>
               <b>CNN-IRwNHA</b>
@@ -181,7 +181,7 @@ function App() {
               autocomplete="off"
             />
             <label class="btn btn-outline-primary" for="btnradio3"
-                  style={{padding: '1.1em 3.7em',
+                  style={{padding: '0.5em 2.7em',
                           borderRadius: '10px',
                         }}>
               <b>DELF</b>

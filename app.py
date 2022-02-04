@@ -43,7 +43,6 @@ def index():
     
     # Save query image
     img = decode_img(base64Img)
-    img = img.resize((256, 256))
     if not os.path.exists("data/uploaded/"): os.makedirs("data/uploaded/")
     query_path = "data/uploaded/" + datetime.now().isoformat().replace(":", ".") + "_" + "query_img.png"
     img.save(query_path)
