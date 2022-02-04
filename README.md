@@ -25,7 +25,7 @@
 | 3 | Nguyen Pham Vinh Nguyen | 19520186 | *19520186@gm.uit.edu.vn* | [nivla0607](https://github.com/nivla0607) | 
 | 4 | Nguyen Khanh Nhu | 19520209 | *19520209@gm.uit.edu.vn* | [nkn-nhu](https://github.com/nkn-nhu) |
 
-## Usage (for colab only)
+## Usage (for Google Colab only)
 Link video demo: https://youtu.be/HQFgYrPgjX4\ \
 Check if GPU is available on Google Colab or not for running our API
 ```sh
