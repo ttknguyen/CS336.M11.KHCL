@@ -5,7 +5,8 @@ import { Form, Button, Container, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import requestToServer from "./service";
+import services from "./service";
+import background from "./assets/background.png";
 
 function App() {
   const [srcImg, setSrcImg] = useState(null);
@@ -16,6 +17,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [method, setMethod] = useState("");
+  const [apiHealth, setApiHealth] = useState(false);
+  const [apiUrl, setApiUrl] = useState("");
+
+  useEffect(() => {
+    document.title = "Image search engine";
+  }, []);
 
   const handleImage = async (event) => {
     if (event.target.files[0].type.match("image/*") === null) {
@@ -29,6 +36,20 @@ function App() {
   const handleMethod = async (event) => {
     const id = event.target.id;
     return setMethod(id.charAt(id.length - 1) - 1);
+  };
+
+  const handleApiUrl = async (event) => {
+    await setApiUrl(event.target.value);
+  };
+
+  const handleSubmitUrl = async () => {
+    const check = await services.checkHeathApi(apiUrl);
+    if (check) {
+      await setApiHealth(true);
+      await setError("");
+    } else {
+      await setError("API not found");
+    }
   };
 
   const handleSubmit = async () => {
@@ -57,7 +78,7 @@ function App() {
 
     await console.log(req);
 
-    const response = await requestToServer(req);
+    const response = await services.requestToServer(req, apiUrl);
     // await setQueryPath(response.data["query-path"]);
     await setResult(response.data.results);
     await setLoading(false);
@@ -75,13 +96,15 @@ function App() {
     );
   });
 
-  return (
+  return apiHealth ? (
+    <div style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center', marginTop:'-17px', height: '100vh' }}>
     <Container className="container" fluid="md">
-      <h1 className="d-flex justify-content-center">IMAGE SEARCH ENGINE</h1>
+      <h1 className="d-flex justify-content-center"><b>IMAGE SEARCH ENGINE</b></h1>
       <Form>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label className="d-flex justify-content-center">
-            Select Image you want to retrieve
+            <b>Select Image you want to retrieve</b>
           </Form.Label>
           {error && (
             <Form.Label className="d-flex justify-content-center text-danger">
@@ -103,7 +126,7 @@ function App() {
             {srcImg && (
               <div id="inputImg" className="d-flex justify-content-center">
                 <ReactCrop
-                  style={{ maxWidth: "30%" }}
+                  style={{ maxWidth: "75%" }}
                   src={srcImg}
                   onImageLoaded={setImage}
                   crop={crop}
@@ -112,6 +135,9 @@ function App() {
               </div>
             )}
           </div>
+          <Form.Label className="d-flex justify-content-center">
+            <b>Select method for Search Engine</b>
+          </Form.Label>
           <div
             class="btn-group"
             role="group"
@@ -126,8 +152,11 @@ function App() {
               id="btnradio1"
               autocomplete="off"
             />
-            <label class="btn btn-outline-primary" for="btnradio1">
-              1
+            <label class="btn btn-outline-primary" for="btnradio1" 
+                  style={{padding: '1.1em 4em',
+                          borderRadius: '10px',
+                        }}>
+              <b>SIR</b>
             </label>
 
             <input
@@ -137,8 +166,11 @@ function App() {
               id="btnradio2"
               autocomplete="off"
             />
-            <label class="btn btn-outline-primary" for="btnradio2">
-              2
+            <label class="btn btn-outline-primary" for="btnradio2"
+                  style={{padding: '1.1em 2em',
+                          borderRadius: '10px',
+                        }}>
+              <b>CNN-IRwNHA</b>
             </label>
 
             <input
@@ -148,8 +180,11 @@ function App() {
               id="btnradio3"
               autocomplete="off"
             />
-            <label class="btn btn-outline-primary" for="btnradio3">
-              3
+            <label class="btn btn-outline-primary" for="btnradio3"
+                  style={{padding: '1.1em 3.7em',
+                          borderRadius: '10px',
+                        }}>
+              <b>DELF</b>
             </label>
           </div>
         </Form.Group>
@@ -183,6 +218,30 @@ function App() {
       )}
       <ul>{listResult}</ul>
     </Container>
+    </div>
+   ) : (
+    <div style={{ backgroundImage: `url(${background})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center', marginTop:'-17px', height: '100vh' }}>
+    <Container className="container" fluid="md">
+      <h1 className="d-flex justify-content-center"><b>IMAGE SEARCH ENGINE</b></h1>
+      <Form.Label className="d-flex justify-content-center">
+        <b>Input API URL</b>
+      </Form.Label>
+      {error && (
+        <Form.Label className="d-flex justify-content-center text-danger">
+          {error}
+        </Form.Label>
+      )}
+      <div className="mb-3 d-flex justify-content-center">
+        <input class="form-control" type="url" onChange={handleApiUrl} />
+      </div>
+      <div class="d-flex justify-content-center">
+        <Button variant="primary" onClick={handleSubmitUrl}>
+          Submit
+        </Button>
+      </div>
+    </Container>
+    </div>
   );
 }
 

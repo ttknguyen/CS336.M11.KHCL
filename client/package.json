@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && cp build/index.html build/200.html",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "front-end": "lt --port 3000 --subdomain ise-cs336m11khcl2019",

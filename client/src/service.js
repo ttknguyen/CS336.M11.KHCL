@@ -1,7 +1,6 @@
 import axios from "axios";
-const baseUrl = "https://ise-backend-jd981.loca.lt/";
 
-const requestToServer = async (req) => {
+const requestToServer = async (req, baseUrl) => {
   const params = new URLSearchParams();
   params.append("x", req.x);
   params.append("y", req.y);
@@ -10,10 +9,24 @@ const requestToServer = async (req) => {
   params.append("image", req.image);
   params.append("method", req.method);
 
-  const timeoutRequest = {timeout: 600000}
+  const timeoutRequest = { timeout: 600000 };
 
   const response = await axios.post(baseUrl, params, timeoutRequest);
   return response;
 };
 
-export default requestToServer;
+const checkHeathApi = async (baseUrl) => {
+  try {
+    const response = await axios.get(baseUrl);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+const services = {
+  requestToServer,
+  checkHeathApi,
+};
+
+export default services;
