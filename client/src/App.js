@@ -117,7 +117,7 @@ function App() {
               class="form-control"
               type="file"
               id="formFile"
-              accept=".jpg, .jpeg, .png"
+              accept=".jpg, .jpeg, .jfif, .pjpeg, .pjp, .png, .gif"
               onChange={handleImage}
             />
           </div>
@@ -126,7 +126,7 @@ function App() {
             {srcImg && (
               <div id="inputImg" className="d-flex justify-content-center">
                 <ReactCrop
-                  style={{ maxWidth: "75%" }}
+                  style={{ maxWidth: "100%" }}
                   src={srcImg}
                   onImageLoaded={setImage}
                   crop={crop}
@@ -216,6 +216,7 @@ function App() {
           </div>
         </div>
       )}
+      <br/><br/>
       <ul>{listResult}</ul>
     </Container>
     </div>
